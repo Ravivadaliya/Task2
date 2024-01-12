@@ -12,6 +12,8 @@ using static System.Net.WebRequestMethods;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolBar;
 using File = System.IO.File;
+using System.Data.SqlClient;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace Task2
 {
@@ -19,10 +21,11 @@ namespace Task2
     {
         private static int Total_Files = 0;
         private static int Total_Folder = 1;
-        private static string[] stringArray = {} ;
-    
+        private static string[] stringArray = { };
+        string connectionString = "";
+
         BackgroundWorker worker = new BackgroundWorker();
-       
+
         public Form1()
         {
             InitializeComponent();
@@ -35,14 +38,14 @@ namespace Task2
         private void Worker_ProgressChange(object sender, ProgressChangedEventArgs e)
         {
             progressBar1.Value = e.ProgressPercentage;
-            label3.Text = progressBar1.Value.ToString()+"%";
-            if(progressBar1.Value == 100)
+            label3.Text = progressBar1.Value.ToString() + "%";
+            if (progressBar1.Value == 100)
             {
                 label3.Text = progressBar1.Value.ToString();
                 MessageBox.Show($"File copy completed with {Total_Files} Files and  {Total_Folder} Folders");
             }
         }
-        private void Worker_DoWork(object sender,DoWorkEventArgs e)
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
             button3.Invoke((MethodInvoker)delegate
             {
@@ -68,6 +71,7 @@ namespace Task2
         private void button1_Click(object sender, EventArgs e)
         {
             worker.RunWorkerAsync();
+            //CopyMethod(textsource.Text, textdestination.Text);
         }
 
         static bool IsFilePath(string path)
@@ -75,10 +79,58 @@ namespace Task2
             // Check if the path is a valid file path and the file exists
             return !string.IsNullOrEmpty(path) && File.Exists(path);
         }
-        private void CopyMethod(string target, string destination)
+
+
+        //using (SqlConnection connection = new SqlConnection(connectionString))
+        //{
+        //    connection.Open();
+        //    string Foldersqlquery = "INSERT INTO FolderDetails(ID,Folder_Name,File_Count,Folder_Count,Parent_Folder,Orignal_Location,Watch_Status) VALUES(@V1,@V2,@V3,@V4,@V5,@V6,@V7)";
+        //    using (SqlCommand command = new SqlCommand(Foldersqlquery, connection))
+        //    {
+        //        command.Parameters.AddWithValue("@Value1", "someValue1");
+        //        command.Parameters.AddWithValue("@Value2", "someValue2");
+        //        int rowsAffected = command.ExecuteNonQuery();
+        //        Console.WriteLine($"Rows Affected: {rowsAffected}");
+        //    }
+        //}
+
+
+        public void FolderDataEntry(string Folder_Name, int File_Count, int Folder_count, string Parent_Folder, string Orignal_Location, int Watch_Status)
         {
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                return;
+            }
+            string Foldersqlquery = "INSERT INTO FolderDetails(Folder_Name,File_Count,Folder_Count,Parent_Folder,Orignal_Location,Watch_Status) VALUES(@V1,@V2,@V3,@V4,@V5,@V6)";
+            using (SqlCommand command = new SqlCommand(Foldersqlquery, connection))
+            {
+                command.Parameters.AddWithValue("@V1", Folder_Name);
+                command.Parameters.AddWithValue("@V2", File_Count);
+                command.Parameters.AddWithValue("@V3", Folder_count);
+                command.Parameters.AddWithValue("@V4", Parent_Folder);
+                command.Parameters.AddWithValue("@V5", Orignal_Location);
+                command.Parameters.AddWithValue("@V6", Watch_Status);
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected == 0)
+                {
+                    MessageBox.Show("Error occure in insert data");
+                }
+            }
+        }
+
+       private void CopyMethod(string target, string destination)
+        {
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                return;
+            }
+
             if (string.IsNullOrEmpty(target) || string.IsNullOrEmpty(destination))
-            {   
+            {
                 MessageBox.Show("Please select source and destination folders.");
                 return;
             }
@@ -156,35 +208,54 @@ namespace Task2
             }
             else
             {
+                string mainfolder = Path.GetFileName(destination);
                 string[] files = Directory.GetFiles(target);
                 string[] directories = Directory.GetDirectories(target);
-
                 int totalItems = files.Length + directories.Length;
                 int processedItems = 0;
 
+                int totalfile = 0;
+                int totalfolder = 0;
+                string parentpath = Path.GetDirectoryName(destination);
+                string parent = Path.GetFileName(parentpath);
                 DateTime startTime = DateTime.Now;
-                foreach (string file in files)
-                {
-                    processedItems++;
-                    Total_Files++;
-                    string fileName = Path.GetFileName(file);
-                    string destinationFilePath = Path.Combine(destination, fileName);
-                    File.Copy(file, destinationFilePath, true); // true overwrite existing files
 
-                    int progressPercentage = (processedItems * 100) / totalItems;
-                    worker.ReportProgress(progressPercentage);
-                }
-                // subdirectories
-                foreach (string directory in directories)
-                {
-                    processedItems++;
-                    Total_Folder++;
-                    string directoryName = Path.GetFileName(directory);
-                    string destinationDirectoryPath = Path.Combine(destination, directoryName);
-                    CopyDirectory(directory, destinationDirectoryPath);
-                    int progressPercentage = (processedItems * 100) / totalItems;
-                    worker.ReportProgress(progressPercentage);
-                }
+                    foreach (string file in files)
+                    {
+                        totalfile++;
+                        processedItems++;
+                        Total_Files++;
+                        string fileName = Path.GetFileName(file);
+                        string destinationFilePath = Path.Combine(destination, fileName);
+                        File.Copy(file, destinationFilePath, true); // true overwrite existing files
+
+                        int progressPercentage = (processedItems * 100) / totalItems;
+                        worker.ReportProgress(progressPercentage);
+                    }
+                
+                     if (directories.Length== 0|| totalfile>0)
+                     {
+                       FolderDataEntry(mainfolder, totalfile, totalfolder, parent, destination, 1);
+                     }
+                    else
+                    {
+                       // subdirectories
+                      foreach (string directory in directories)
+                      {
+                        totalfolder++;
+                        processedItems++;
+                        Total_Folder++;
+                        string directoryName = Path.GetFileName(directory);
+                        string destinationDirectoryPath = Path.Combine(destination, directoryName);
+                        CopyDirectory(directory, destinationDirectoryPath);
+                        int progressPercentage = (processedItems * 100) / totalItems;
+                        worker.ReportProgress(progressPercentage);
+                      }
+                       FolderDataEntry(mainfolder, totalfile, totalfolder, parent, destination, 1);
+                    }
+                   
+
+
                 DateTime endTime = DateTime.Now;
                 TimeSpan duration = endTime - startTime;
                 TimeLabel.Invoke((MethodInvoker)delegate
@@ -194,44 +265,64 @@ namespace Task2
             }
         }
 
-        static void CopyDirectory(string source, string destination)
+        public void CopyDirectory(string source, string destination)
         {
+
+            int total_file = 0;
+            int total_folder = 0;
+            string mainfolder = Path.GetFileName(destination);
             // Create the destination directory if not exiest
             if (!Directory.Exists(destination))
             {
                 Directory.CreateDirectory(destination);
             }
-
             string[] files = Directory.GetFiles(source);
             string[] directories = Directory.GetDirectories(source);
 
             // Copy files
             foreach (string file in files)
             {
+                total_file++;
                 Total_Files++;
                 string fileName = Path.GetFileName(file);
                 string destinationFilePath = Path.Combine(destination, fileName);
                 File.Copy(file, destinationFilePath, true);  // true overwrite existing filess
             }
-
-            // recursion subdirectories
-            foreach (string directory in directories)
+            //DirectoryInfo parentDir = Directory.GetParent(Path.GetDirectoryName(destination));
+            //string parent = parentDir.ToString();
+            string parentpath = Path.GetDirectoryName(destination);
+            string parent = Path.GetFileName(parentpath);
+            if (directories.Length == 0)
             {
-                Total_Folder++;
-                string directoryName = Path.GetFileName(directory);
-                string destinationDirectoryPath = Path.Combine(destination, directoryName);
-                CopyDirectory(directory, destinationDirectoryPath);
+                FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
             }
+            else
+            {
+                // recursion subdirectories
+                foreach (string directory in directories)
+                {
+                    total_folder++;
+                    Total_Folder++;
+                    string directoryName = Path.GetFileName(directory);
+                    string destinationDirectoryPath = Path.Combine(destination, directoryName);
+                    CopyDirectory(directory, destinationDirectoryPath);
+                }
+                FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
+            }
+
+
         }
 
         #region unnecessary methods
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            //database code
+            connectionString = "Data Source=MSI\\SQLEXPRESS;Initial Catalog=Infinnium;Integrated Security=true;";
+        }
         private void label1_Click(object sender, EventArgs e)
         {
         }
         private void label2_Click(object sender, EventArgs e)
-        {
-        }
-        private void Form1_Load(object sender, EventArgs e)
         {
         }
 
@@ -262,7 +353,7 @@ namespace Task2
             else
             {
                 MessageBox.Show("Please select a valid folder path.");
-            }   
+            }
         }
         //when you select all file then this method called
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -301,7 +392,7 @@ namespace Task2
             FolderBrowserDialog fdb = new FolderBrowserDialog();
             if (fdb.ShowDialog() == DialogResult.OK)
             {
-                textdestination.Text= Path.Combine(fdb.SelectedPath,"");
+                textdestination.Text = Path.Combine(fdb.SelectedPath, "");
             }
         }
         #endregion

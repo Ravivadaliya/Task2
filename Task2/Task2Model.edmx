@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="InfinniumModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="FileDetails">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Folder_Id" Type="int" Nullable="false" />
+          <Property Name="File_Names" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="File_Extention" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="File_Status" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="FolderDetails">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Folder_Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="File_Count" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Folder_Count" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Parent_Folder" Type="varchar" MaxLength="50" />
+          <Property Name="Orignal_Location" Type="varchar" MaxLength="70" Nullable="false" />
+          <Property Name="Watch_Status" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_FileDetails_FolderDetails">
+          <End Role="FolderDetails" Type="Self.FolderDetails" Multiplicity="1" />
+          <End Role="FileDetails" Type="Self.FileDetails" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FolderDetails">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="FileDetails">
+              <PropertyRef Name="Folder_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="InfinniumModelStoreContainer">
+          <EntitySet Name="FileDetails" EntityType="Self.FileDetails" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FolderDetails" EntityType="Self.FolderDetails" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_FileDetails_FolderDetails" Association="Self.FK_FileDetails_FolderDetails">
+            <End Role="FolderDetails" EntitySet="FolderDetails" />
+            <End Role="FileDetails" EntitySet="FileDetails" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="InfinniumModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="FileDetail">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Folder_Id" Type="Int32" Nullable="false" />
+          <Property Name="File_Names" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="File_Extention" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="File_Status" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="FolderDetail" Relationship="Self.FK_FileDetails_FolderDetails" FromRole="FileDetails" ToRole="FolderDetails" />
+        </EntityType>
+        <EntityType Name="FolderDetail">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Folder_Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="File_Count" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Folder_Count" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Parent_Folder" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Orignal_Location" Type="String" MaxLength="70" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Watch_Status" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="FileDetails" Relationship="Self.FK_FileDetails_FolderDetails" FromRole="FolderDetails" ToRole="FileDetails" />
+        </EntityType>
+        <Association Name="FK_FileDetails_FolderDetails">
+          <End Role="FolderDetails" Type="Self.FolderDetail" Multiplicity="1" />
+          <End Role="FileDetails" Type="Self.FileDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FolderDetails">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="FileDetails">
+              <PropertyRef Name="Folder_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="InfinniumEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="FileDetails" EntityType="Self.FileDetail" />
+          <EntitySet Name="FolderDetails" EntityType="Self.FolderDetail" />
+          <AssociationSet Name="FK_FileDetails_FolderDetails" Association="Self.FK_FileDetails_FolderDetails">
+            <End Role="FolderDetails" EntitySet="FolderDetails" />
+            <End Role="FileDetails" EntitySet="FileDetails" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="InfinniumModelStoreContainer" CdmEntityContainer="InfinniumEntities">
+          <EntitySetMapping Name="FileDetails">
+            <EntityTypeMapping TypeName="InfinniumModel.FileDetail">
+              <MappingFragment StoreEntitySet="FileDetails">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Folder_Id" ColumnName="Folder_Id" />
+                <ScalarProperty Name="File_Names" ColumnName="File_Names" />
+                <ScalarProperty Name="File_Extention" ColumnName="File_Extention" />
+                <ScalarProperty Name="File_Status" ColumnName="File_Status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FolderDetails">
+            <EntityTypeMapping TypeName="InfinniumModel.FolderDetail">
+              <MappingFragment StoreEntitySet="FolderDetails">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Folder_Name" ColumnName="Folder_Name" />
+                <ScalarProperty Name="File_Count" ColumnName="File_Count" />
+                <ScalarProperty Name="Folder_Count" ColumnName="Folder_Count" />
+                <ScalarProperty Name="Parent_Folder" ColumnName="Parent_Folder" />
+                <ScalarProperty Name="Orignal_Location" ColumnName="Orignal_Location" />
+                <ScalarProperty Name="Watch_Status" ColumnName="Watch_Status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
