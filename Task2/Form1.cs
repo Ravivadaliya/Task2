@@ -232,13 +232,7 @@ namespace Task2
                         int progressPercentage = (processedItems * 100) / totalItems;
                         worker.ReportProgress(progressPercentage);
                     }
-                
-                     if (directories.Length== 0|| totalfile>0)
-                     {
-                       FolderDataEntry(mainfolder, totalfile, totalfolder, parent, destination, 1);
-                     }
-                    else
-                    {
+                    
                        // subdirectories
                       foreach (string directory in directories)
                       {
@@ -252,9 +246,7 @@ namespace Task2
                         worker.ReportProgress(progressPercentage);
                       }
                        FolderDataEntry(mainfolder, totalfile, totalfolder, parent, destination, 1);
-                    }
-                   
-
+                    
 
                 DateTime endTime = DateTime.Now;
                 TimeSpan duration = endTime - startTime;
