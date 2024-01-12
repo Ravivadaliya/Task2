@@ -150,8 +150,25 @@ namespace Task2
                 int filelength = 0;
                 int folderlenght = 0;
 
+
+
+
+                string mainfolder = Path.GetFileName(destination);
+
+                int totalfile = 0;
+                int totalfolder = 0;
+                string parentpath = Path.GetDirectoryName(destination);
+                string parent = Path.GetFileName(parentpath);
+
+
+
+
                 foreach (string item in stringArray)
                 {
+                    if (string.IsNullOrEmpty(item))
+                    {
+                        continue;   
+                    }
                     if (IsFilePath(item))
                     {
                         filelength++;
@@ -161,19 +178,27 @@ namespace Task2
                         folderlenght++;
                     }
                 }
+                //FolderDataEntry(mainfolder, filelength, folderlenght, parent, destination, 1);
+
                 totallength = filelength + folderlenght;
                 int processedItems = 0;
                 DateTime startTime = DateTime.Now;
+
+
                 foreach (string item in stringArray)
                 {
                     if (string.IsNullOrEmpty(item))
                     {
                         continue;
                     }
+                    parentpath = Path.GetDirectoryName(destination);
+                    parent = Path.GetFileName(parentpath);
+
                     if (File.Exists(item))
                     {
                         processedItems++;
                         Total_Files++;
+                        totalfile++;
                         string fileName = Path.GetFileName(item);
                         string destinationFilePath = Path.Combine(destination, fileName);
                         File.Copy(item, destinationFilePath, true); // true overwrite existing files
@@ -184,6 +209,7 @@ namespace Task2
                     {
                         processedItems++;
                         Total_Folder++;
+                        totalfolder++;
                         string directoryName = Path.GetFileName(item);
                         string destinationDirectoryPath = Path.Combine(destination, directoryName);
                         CopyDirectory(item, destinationDirectoryPath);
@@ -191,6 +217,7 @@ namespace Task2
                         worker.ReportProgress(progressPercentage);
                     }
                 }
+                FolderDataEntry(mainfolder, totalfile, totalfolder, parent, destination, 1);
                 DateTime endTime = DateTime.Now;
                 TimeSpan duration = endTime - startTime;
                 TimeLabel.Invoke((MethodInvoker)delegate
@@ -228,12 +255,11 @@ namespace Task2
                         string fileName = Path.GetFileName(file);
                         string destinationFilePath = Path.Combine(destination, fileName);
                         File.Copy(file, destinationFilePath, true); // true overwrite existing files
-
                         int progressPercentage = (processedItems * 100) / totalItems;
                         worker.ReportProgress(progressPercentage);
                     }
                     
-                       // subdirectories
+                      // subdirectories
                       foreach (string directory in directories)
                       {
                         totalfolder++;
@@ -280,8 +306,7 @@ namespace Task2
                 string destinationFilePath = Path.Combine(destination, fileName);
                 File.Copy(file, destinationFilePath, true);  // true overwrite existing filess
             }
-            //DirectoryInfo parentDir = Directory.GetParent(Path.GetDirectoryName(destination));
-            //string parent = parentDir.ToString();
+
             string parentpath = Path.GetDirectoryName(destination);
             string parent = Path.GetFileName(parentpath);
             if (directories.Length == 0)
