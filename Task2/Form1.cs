@@ -38,7 +38,6 @@ namespace Task2
             label3.Text = progressBar1.Value.ToString()+"%";
             if(progressBar1.Value == 100)
             {
-                progressBar1.Value = 0;
                 label3.Text = progressBar1.Value.ToString();
                 MessageBox.Show($"File copy completed with {Total_Files} Files and  {Total_Folder} Folders");
             }
@@ -49,12 +48,20 @@ namespace Task2
             {
                 button3.Enabled = false;
             });
+            ClearButton.Invoke((MethodInvoker)delegate
+            {
+                ClearButton.Enabled = false;
+            });
             button3.Enabled = false;
             CopyMethod(textsource.Text, textdestination.Text);
             button3.Invoke((MethodInvoker)delegate
             {
                 button3.Enabled = true;
-            });            
+            });
+            ClearButton.Invoke((MethodInvoker)delegate
+            {
+                ClearButton.Enabled = true;
+            });
         }
 
         //submit button click
@@ -87,7 +94,6 @@ namespace Task2
             }
             if (stringArray.Length > 0)
             {
-
                 int totallength = 0;
                 int filelength = 0;
                 int folderlenght = 0;
@@ -129,7 +135,6 @@ namespace Task2
                         string directoryName = Path.GetFileName(item);
                         string destinationDirectoryPath = Path.Combine(destination, directoryName);
                         CopyDirectory(item, destinationDirectoryPath);
-
                         int progressPercentage = (processedItems * 100) / totallength;
                         worker.ReportProgress(progressPercentage);
                     }
@@ -146,9 +151,8 @@ namespace Task2
                 });
                 label3.Invoke((MethodInvoker)delegate
                 {
-                    label3.Text = "100";
+                    label3.Text = "100%";
                 });
-
             }
             else
             {
@@ -188,8 +192,6 @@ namespace Task2
                     TimeLabel.Text = duration.TotalSeconds.ToString() + "seconds";
                 });
             }
-
-           
         }
 
         static void CopyDirectory(string source, string destination)
