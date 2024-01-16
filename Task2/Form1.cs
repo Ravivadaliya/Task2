@@ -115,12 +115,47 @@ namespace Task2
                 int rowsAffected = command.ExecuteNonQuery();
                 if (rowsAffected == 0)
                 {
-                    MessageBox.Show("Error occure in insert data");
+                    MessageBox.Show("Error occure in insert folder data");
+                }
+            }
+        }
+        public void FileDataentry(string foldername, string File_Names, string File_Extention, int File_Status)
+        {
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                return;
+            }
+
+            string Folderidsqlquery = "SELECT ID FROM FolderDetails WHERE Folder_Name = @FolderName";
+
+            using (SqlCommand cd = new SqlCommand(Folderidsqlquery, connection))
+            {
+                cd.Parameters.AddWithValue("@FolderName", foldername);
+                int Folder_Id = (int)(cd.ExecuteScalar() ?? 0);
+
+                string FilesqlQuery = "INSERT INTO FileDetails(Folder_Id, File_Names, File_Extention, File_Status) VALUES(@V1, @V2, @V3, @V4)";
+
+                using (SqlCommand command = new SqlCommand(FilesqlQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@V1", Folder_Id);
+                    command.Parameters.AddWithValue("@V2", File_Names);
+                    command.Parameters.AddWithValue("@V3", File_Extention);
+                    command.Parameters.AddWithValue("@V4", File_Status);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected == 0)
+                    {
+                        MessageBox.Show("Error occurred while inserting file data");
+                    }
                 }
             }
         }
 
-       private void CopyMethod(string target, string destination)
+        private void CopyMethod(string target, string destination)
         {
             SqlConnection connection = new SqlConnection(connectionString);
             connection.Open();
@@ -151,16 +186,12 @@ namespace Task2
                 int folderlenght = 0;
 
 
-
-
                 string mainfolder = Path.GetFileName(destination);
 
                 int totalfile = 0;
                 int totalfolder = 0;
                 string parentpath = Path.GetDirectoryName(destination);
                 string parent = Path.GetFileName(parentpath);
-
-
 
 
                 foreach (string item in stringArray)
@@ -218,6 +249,17 @@ namespace Task2
                     }
                 }
                 FolderDataEntry(mainfolder, totalfile, totalfolder, parent, destination, 1);
+                foreach (string item in stringArray)
+                {
+                    if (File.Exists(item))
+                    {
+                        string filename = Path.GetFileName(item);
+                        string fileexe = Path.GetExtension(item);
+                        int status = 1;
+                        FileDataentry(mainfolder, filename, fileexe, status);
+                    }
+                }
+
                 DateTime endTime = DateTime.Now;
                 TimeSpan duration = endTime - startTime;
                 TimeLabel.Invoke((MethodInvoker)delegate
@@ -271,8 +313,16 @@ namespace Task2
                         int progressPercentage = (processedItems * 100) / totalItems;
                         worker.ReportProgress(progressPercentage);
                       }
-                       FolderDataEntry(mainfolder, totalfile, totalfolder, parent, destination, 1);
-                    
+       
+                      FolderDataEntry(mainfolder, totalfile, totalfolder, parent, destination, 1);
+                       
+                      foreach (string file in files)
+                      {
+                          string filename = Path.GetFileName(file);
+                          string fileexe = Path.GetExtension(file);
+                          int status = 1;
+                          FileDataentry(mainfolder, filename, fileexe, status);
+                      }
 
                 DateTime endTime = DateTime.Now;
                 TimeSpan duration = endTime - startTime;
@@ -285,7 +335,6 @@ namespace Task2
 
         public void CopyDirectory(string source, string destination)
         {
-
             int total_file = 0;
             int total_folder = 0;
             string mainfolder = Path.GetFileName(destination);
@@ -311,7 +360,22 @@ namespace Task2
             string parent = Path.GetFileName(parentpath);
             if (directories.Length == 0)
             {
-                FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
+                if (parent == "")
+                {
+                FolderDataEntry(mainfolder, total_file, total_folder, null, destination, 1);
+                }
+                else
+                {
+                    FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
+                }
+
+                foreach (string file in files)
+                {
+                    string filename = Path.GetFileName(file);
+                    string fileexe = Path.GetExtension(file);
+                    int status = 1;
+                    FileDataentry(mainfolder, filename, fileexe, status);
+                }
             }
             else
             {
@@ -326,7 +390,6 @@ namespace Task2
                 }
                 FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
             }
-
 
         }
 
@@ -440,6 +503,8 @@ namespace Task2
             progressBar1.Value = 0;
             label3.Text = "";
             TimeLabel.Text = "";
+            Total_Files = 0;
+            Total_Folder= 0;
 
         }
 
