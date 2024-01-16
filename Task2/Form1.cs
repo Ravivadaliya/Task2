@@ -290,7 +290,7 @@ namespace Task2
                 DateTime startTime = DateTime.Now;
 
                     foreach (string file in files)
-                    {
+                    {   
                         totalfile++;
                         processedItems++;
                         Total_Files++;
@@ -358,28 +358,9 @@ namespace Task2
 
             string parentpath = Path.GetDirectoryName(destination);
             string parent = Path.GetFileName(parentpath);
-            if (directories.Length == 0)
-            {
-                if (parent == "")
-                {
-                FolderDataEntry(mainfolder, total_file, total_folder, null, destination, 1);
-                }
-                else
-                {
-                    FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
-                }
 
-                foreach (string file in files)
-                {
-                    string filename = Path.GetFileName(file);
-                    string fileexe = Path.GetExtension(file);
-                    int status = 1;
-                    FileDataentry(mainfolder, filename, fileexe, status);
-                }
-            }
-            else
+            if (directories.Length > 0)
             {
-                // recursion subdirectories
                 foreach (string directory in directories)
                 {
                     total_folder++;
@@ -388,7 +369,14 @@ namespace Task2
                     string destinationDirectoryPath = Path.Combine(destination, directoryName);
                     CopyDirectory(directory, destinationDirectoryPath);
                 }
-                FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
+            }
+            FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
+            foreach (string file in files)
+            {
+                string filename = Path.GetFileName(file);
+                string fileexe = Path.GetExtension(file);
+                int status = 1;
+                FileDataentry(mainfolder, filename, fileexe, status);
             }
 
         }
@@ -517,6 +505,38 @@ namespace Task2
 
     }
 }
+
+
+
+
+
+
+//if (directories.Length == 0)
+            //{
+            //    FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
+            //    foreach (string file in files)
+            //    {
+            //        string filename = Path.GetFileName(file);
+            //        string fileexe = Path.GetExtension(file);
+            //        int status = 1;
+            //        FileDataentry(mainfolder, filename, fileexe, status);
+            //    }
+            //}
+            //else
+            //{
+            //    // recursion subdirectories
+            //    foreach (string directory in directories)
+            //    {
+            //        total_folder++;
+            //        Total_Folder++;
+            //        string directoryName = Path.GetFileName(directory);
+            //        string destinationDirectoryPath = Path.Combine(destination, directoryName);
+            //        CopyDirectory(directory, destinationDirectoryPath);
+            //    }
+            //    FolderDataEntry(mainfolder, total_file, total_folder, parent, destination, 1);
+            //}
+
+
 
 
 
