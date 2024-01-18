@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DAL\FolderFileDatabase.cs" />
     <Compile Include="FileDetail.cs">
       <DependentUpon>Task2Model.tt</DependentUpon>
     </Compile>
