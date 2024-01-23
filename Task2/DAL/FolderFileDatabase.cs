@@ -17,9 +17,9 @@ namespace Task2.DAL
 
         private SqlConnection OpenConnection(string connectionString)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
             try
             {
+               SqlConnection connection = new SqlConnection(connectionString);
                 connection.Open();
                 if (connection.State != System.Data.ConnectionState.Open)
                 {
@@ -30,7 +30,8 @@ namespace Task2.DAL
             }
             catch (Exception e)
             {
-                MessageBox.Show("Error occurred while opening the connection: " + e.Message);
+                //MessageBox.Show("Error occurred while opening the connection: " + e.Message);
+                Logger.Writelog("Open Connection "+e.Message);
                 return null;
             }
         }
@@ -38,11 +39,11 @@ namespace Task2.DAL
 
 
         //Folder DataEntry Method
-        public void FolderDataEntry(string Folder_Name, int File_Count, int Folder_count, string Parent_Folder, string Orignal_Location, int Watch_Status,string connectionString)
+        public void FolderDataEntry(string Folder_Name, int File_Count, int Folder_count, string Parent_Folder, string Orignal_Location, int Watch_Status, string connectionString)
         {
             SqlConnection connection = OpenConnection(connectionString);
             try
-            {                
+            {
 
                 string Foldersqlquery = "INSERT INTO FolderDetails(Folder_Name,File_Count,Folder_Count,Parent_Folder,Orignal_Location,Watch_Status) VALUES(@V1,@V2,@V3,@V4,@V5,@V6)";
                 using (SqlCommand command = new SqlCommand(Foldersqlquery, connection))
@@ -62,7 +63,8 @@ namespace Task2.DAL
             }
             catch (Exception e)
             {
-                MessageBox.Show("Error occur in Folder Data entry : " + e.Message);
+                //MessageBox.Show("Error occur in Folder Data entry : " + e.Message);
+                Logger.Writelog("Open Connection " + e.Message);
             }
 
         }
@@ -101,7 +103,7 @@ namespace Task2.DAL
             }
             catch (Exception e)
             {
-                MessageBox.Show("Error occur in File Data entry : " + e.Message);
+                Logger.Writelog("File Entry error " + e.Message);
             }
         }
 
@@ -133,7 +135,8 @@ namespace Task2.DAL
             }
             catch (Exception e)
             {
-                MessageBox.Show("An error occurred in File Status Upadte : " + e.Message);
+                //MessageBox.Show("An error occurred in File Status Upadte : " + e.Message);
+                Logger.Writelog("FileUpdate error " + e.Message);
             }
         }
 
