@@ -13,8 +13,6 @@ namespace Task2.DAL
 
 
         //database method
-
-
         private SqlConnection OpenConnection(string connectionString)
         {
             try

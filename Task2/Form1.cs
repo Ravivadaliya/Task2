@@ -53,6 +53,7 @@ namespace Task2
         
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
+               label5.Text = "Copying....." ;
             button3.Invoke((MethodInvoker)delegate
             {
                 button3.Enabled = false;
