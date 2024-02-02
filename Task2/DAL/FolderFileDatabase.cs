@@ -53,7 +53,7 @@ namespace Task2.DAL
                     command.Parameters.AddWithValue("@V5", Orignal_Location);
                     command.Parameters.AddWithValue("@V6", Watch_Status);
                     int rowsAffected = command.ExecuteNonQuery();
-                    if (rowsAffected == 0)
+                    if (rowsAffected == -1)
                     {
                         MessageBox.Show("Error occure in insert folder data");
                     }
@@ -92,7 +92,7 @@ namespace Task2.DAL
 
                         int rowsAffected = command.ExecuteNonQuery();
 
-                        if (rowsAffected == 0)
+                        if (rowsAffected == -1)
                         {
                             MessageBox.Show("Error occurred while inserting file data");
                         }
@@ -124,7 +124,7 @@ namespace Task2.DAL
                         command.Parameters.AddWithValue("@status", File_Status);
                         command.Parameters.AddWithValue("@ID", ID);
                         int rowupdate = command.ExecuteNonQuery();
-                        if (rowupdate == 0)
+                        if (rowupdate == -1)
                         {
                             MessageBox.Show("Error occurred while inserting file data");
                         }
